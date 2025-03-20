@@ -19,43 +19,42 @@ const listaTenis = [
     }
 ];
 
+// Função para trocar o tênis exibido
 function trocarTenis(index) {
     const tenis = listaTenis[index];
     const tenisImg = document.getElementById("tenis-img");
     const tenisTitle = document.getElementById("tenis-title");
     const tenisDesc = document.getElementById("tenis-desc");
     const container = document.querySelector(".container");
-    const tenisInfo = document.querySelector(".tenis-info");
 
-    tenisImg.src = tenis.img;
-    tenisTitle.textContent = tenis.title;
-    tenisDesc.textContent = tenis.description;
-    container.style.background = tenis.background;
+    // Adiciona animação de fade-out
+    tenisImg.style.opacity = 0;
+    tenisTitle.style.opacity = 0;
+    tenisDesc.style.opacity = 0;
 
-    tenisInfo.classList.add("hidden");
-
-    // Aguarda 500ms (tempo da transição) para trocar o conteúdo
     setTimeout(() => {
         tenisImg.src = tenis.img;
         tenisTitle.textContent = tenis.title;
         tenisDesc.textContent = tenis.description;
         container.style.background = tenis.background;
 
-        // Remove a classe para exibir o novo conteúdo suavemente
-        tenisInfo.classList.remove("hidden");
-    }, 1000);
+        // Adiciona animação de fade-in
+        tenisImg.style.opacity = 1;
+        tenisTitle.style.opacity = 1;
+        tenisDesc.style.opacity = 1;
+    }, 300); // Tempo da transição (300ms)
 }
 
-
-
+// Inicializa o primeiro tênis ao carregar a página
 document.addEventListener("DOMContentLoaded", () => trocarTenis(0));
 
-// Event Listeners para os botões
+// Event Listeners para os botões de cor
 document.getElementById("btn-blue").addEventListener("click", () => trocarTenis(0));
 document.getElementById("btn-red").addEventListener("click", () => trocarTenis(1));
 document.getElementById("btn-black").addEventListener("click", () => trocarTenis(2));
 
-const cart = [];
+// Carrinho de compras
+const cart = JSON.parse(localStorage.getItem("cart")) || []; // Recupera o carrinho do localStorage
 const cartMenu = document.getElementById("cart-menu");
 const cartBtn = document.getElementById("cart-btn");
 const closeCartBtn = document.getElementById("close-cart");
@@ -64,6 +63,7 @@ const cartContainer = document.getElementById("cart-container");
 // Abrir o carrinho
 cartBtn.addEventListener("click", () => {
     cartMenu.classList.add("active");
+    cartMenu.focus(); // Foca no carrinho ao abrir
 });
 
 // Fechar o carrinho
@@ -72,25 +72,24 @@ closeCartBtn.addEventListener("click", () => {
 });
 
 // Função para adicionar produtos ao carrinho
-function addToCart() {
-    const shoeName = document.getElementById("tenis-title").textContent;
-    const shoePrice = 120; // Valor fixo de exemplo
-
-    // Verifica se o item já existe no carrinho
-    const existingItem = cart.find(item => item.name === shoeName);
+function addToCart(productName, productPrice = 120) {
+    const existingItem = cart.find(item => item.name === productName);
 
     if (existingItem) {
-        existingItem.quantity++; // Se já existe, aumenta a quantidade
+        existingItem.quantity++;
     } else {
-        cart.push({ name: shoeName, price: shoePrice, quantity: 1 });
+        cart.push({ name: productName, price: productPrice, quantity: 1 });
     }
 
     updateCart();
+    saveCartToLocalStorage();
+    showNotification(`${productName} adicionado ao carrinho!`);
 }
 
 // Atualiza a exibição do carrinho
 function updateCart() {
     cartContainer.innerHTML = "";
+    let total = 0;
 
     cart.forEach((item, index) => {
         const listItem = document.createElement("li");
@@ -117,15 +116,35 @@ function updateCart() {
 
         // Adiciona o ícone de lixeira ao botão
         const trashIcon = document.createElement("i");
-        trashIcon.classList.add("fa-solid", "fa-trash"); // Classes do Font Awesome
-        removeAllBtn.appendChild(trashIcon); // Adiciona o ícone ao botão
+        trashIcon.classList.add("fa-solid", "fa-trash");
+        removeAllBtn.appendChild(trashIcon);
 
         listItem.appendChild(removeOneBtn);
         listItem.appendChild(removeAllBtn);
         cartContainer.appendChild(listItem);
+
+        total += item.price * item.quantity;
     });
 
-    // Abre o carrinho automaticamente ao adicionar
+    // Exibe o total do carrinho
+    const totalElement = document.createElement("li");
+    totalElement.textContent = `Total: R$${total.toFixed(2)}`;
+    totalElement.style.fontWeight = "bold";
+    cartContainer.appendChild(totalElement);
+
+    // Botão de finalizar compra
+    const checkoutBtn = document.createElement("button");
+    checkoutBtn.textContent = "Finalizar Compra";
+    checkoutBtn.style.marginTop = "10px";
+    checkoutBtn.style.width = "100%";
+    checkoutBtn.style.padding = "10px";
+    checkoutBtn.style.backgroundColor = "#000";
+    checkoutBtn.style.color = "#fff";
+    checkoutBtn.style.border = "none";
+    checkoutBtn.style.borderRadius = "5px";
+    checkoutBtn.onclick = () => alert("Compra finalizada! Obrigado!");
+    cartContainer.appendChild(checkoutBtn);
+
     cartMenu.classList.add("active");
 }
 
@@ -137,13 +156,50 @@ function decreaseQuantity(index) {
         cart.splice(index, 1);
     }
     updateCart();
+    saveCartToLocalStorage();
 }
 
 // Função para remover um item completamente
 function removeFromCart(index) {
     cart.splice(index, 1);
     updateCart();
+    saveCartToLocalStorage();
 }
 
-// Adiciona evento ao botão de compra
-document.querySelector(".btn-buy").addEventListener("click", addToCart);
+// Função para exibir notificações
+function showNotification(message) {
+    const notification = document.createElement("div");
+    notification.textContent = message;
+    notification.style.position = "fixed";
+    notification.style.bottom = "20px";
+    notification.style.right = "20px";
+    notification.style.backgroundColor = "#000";
+    notification.style.color = "#fff";
+    notification.style.padding = "10px";
+    notification.style.borderRadius = "5px";
+    notification.style.zIndex = "1000";
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
+
+// Salva o carrinho no localStorage
+function saveCartToLocalStorage() {
+    localStorage.setItem("cart", JSON.stringify(cart));
+}
+
+// Adiciona evento ao botão de compra do tênis principal
+document.querySelector(".btn-buy").addEventListener("click", () => {
+    const shoeName = document.getElementById("tenis-title").textContent;
+    addToCart(shoeName);
+});
+
+// Adiciona evento aos botões "adicionar ao carrinho" dos produtos
+document.querySelectorAll(".produtos-btn").forEach(button => {
+    button.addEventListener("click", () => {
+        const productName = button.getAttribute("data-product"); // Nome do produto
+        addToCart(productName);
+    });
+});
