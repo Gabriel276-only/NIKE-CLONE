@@ -1,6 +1,6 @@
 # Portfólio de E-commerce
 
-Este projeto é um exemplo de **landing page** para um portfólio de e-commerce. Ele foi desenvolvido para mostrar uma interface moderna e interativa, com foco em animações suaves, responsividade e performance otimizada.
+Este projeto é um exemplo da pagina da NIKE feito por mim. Ele foi desenvolvido para mostrar uma interface moderna e interativa, com foco em animações suaves, responsividade e performance otimizada.
 
 ## Tecnologias Utilizadas
 - **HTML5**: Estrutura do conteúdo da página.
