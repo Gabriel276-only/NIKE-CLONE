@@ -72,7 +72,7 @@ closeCartBtn.addEventListener("click", () => {
 });
 
 // Função para adicionar produtos ao carrinho
-function addToCart(productName, productPrice = 120) {
+function addToCart(productName, productPrice = 9999999) {
     const existingItem = cart.find(item => item.name === productName);
 
     if (existingItem) {
