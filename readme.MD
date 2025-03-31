@@ -1,4 +1,4 @@
-# Portfólio de E-commerce
+# Portfolio Clone
 
 Este projeto é um exemplo da pagina da NIKE feito por mim. Ele foi desenvolvido para mostrar uma interface moderna e interativa, com foco em animações suaves, responsividade e performance otimizada.
 
